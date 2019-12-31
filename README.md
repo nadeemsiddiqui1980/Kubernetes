@@ -79,13 +79,15 @@ This is test repo
 
 . The process which manage the Pod is Kubelet.
 
-. Kube-Proxy manage the Manage the Network communication between all the Pod
+. Kube-Proxy Manage the Network communication between all the Pod
 
 . Pod is an worker unit.
 
 . Each Pod get an IP address
 
 . Visialize Pod as an Virtual Machine.
+
+. All containers in a Pod share Volume (Storage) and Networking.
 
 ## Pod Workflow :-
 
@@ -107,7 +109,7 @@ This is test repo
 
 9. Now we have 3 imges (Pause, Tomcat Service and Proxy)in the same NameSpace and IPAddress
 
-10. After that again Kublet request Docker to run one more image of "init Container" in the same IP and NameSpace (i.e. Tomcat). Init Container is fist container which get started when we start a Pod, becasue it contain all the initial files and instruction (like Jar file, etc).
+10. After that again Kublet request Docker to run one more image of "init Container" in the same IP and NameSpace (i.e. Tomcat). Init Container is fist container which get started when we start a Pod, becasue it contain all the initial files and instruction (like Jar file, etc). Init container plase all the required files in the share volume of the Pod and go to ideal stage.
 
 11. Now we have 4 imges (Pause, Tomcat Service, Proxy and Init)in the same NameSpace and IPAddress
 
