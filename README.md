@@ -1160,3 +1160,349 @@ $ kubectl delete service customnginx
 
 ==============================================================================================================================================================
 
+
+# Init containers:
+At times you may want to do some prep work for a container before starting it. That pre-work could be done by another container, which would do it's thing and exit before the main container starts. One example could be that you want to serve some static website content which exists as a git hub repository. So you would want something to pull that static content and provide it to the web server. This is called init-container. 
+
+Below is an example, in which we have a "simple-website". The website exists as git repository at `https://github.com/fly2nadeem/simple-website.git` , we want to serve it through the nginx service.
+
+Here is the yaml file which contains the definition of a pod that uses an init container.
+```
+$ cat support-files/init-container-pod.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: init-container-demo
+spec:
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: web-content-dir
+      mountPath: /usr/share/nginx/html
+  initContainers:
+  - name: helper
+    image: alpine/git
+    command:
+    - git 
+    - clone
+    - https://github.com/fly2nadeem/simple-website.git
+    - /web-content/
+    volumeMounts:
+    - name: web-content-dir
+      mountPath: "/web-content"
+  volumes:
+  - name: web-content-dir
+    emptyDir: {}
+```
+
+Create the pod using the following command:
+
+```
+$ kubectl create -f support-files/init-container-pod.yaml 
+pod "init-container-demo" created
+$ 
+```
+
+Watch the pod going through several phases:
+```
+$ kubectl get pods -w
+NAME                         READY     STATUS     RESTARTS   AGE
+init-container-demo          0/1       Init:0/1   0          0s
+multitool-5558fd48d4-snr8j   1/1       Running    0          22h
+init-container-demo   0/1       Init:0/1   0         4s
+init-container-demo   0/1       PodInitializing   0         6s
+init-container-demo   1/1       Running   0         7s
+$ 
+```
+
+Final state would look like this:
+```
+$ kubectget pods 
+NAME                         READY     STATUS    RESTARTS   AGE
+init-container-demo          1/1       Running   0          1m
+multitool-5558fd48d4-snr8j   1/1       Running   0          22h
+$ 
+```
+
+Examine the pod using `kubectl describe` and also by logging into it using `kubectl exec` .
+
+
+```
+PS C:\Users\Samu\.kube> kubectl exec -it init-container-demo /bin/sh
+/ # ls
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    tmp    usr    var
+/ # ls /bin
+arch           cp             false          ionice         ls             mv             reformime      stat           watch
+ash            date           fatattr        iostat         lzop           netstat        rev            stty           zcat
+base64         dd             fdflush        ipcalc         makemime       nice           rm             su
+bbconfig       df             fgrep          kbd_mode       mkdir          pidof          rmdir          sync
+busybox        dmesg          fsync          kill           mknod          ping           run-parts      tar
+cat            dnsdomainname  getopt         link           mktemp         ping6          sed            touch
+chgrp          dumpkmap       grep           linux32        more           pipe_progress  setpriv        true
+chmod          echo           gunzip         linux64        mount          printenv       setserial      umount
+chown          ed             gzip           ln             mountpoint     ps             sh             uname
+conspy         egrep          hostname       login          mpstat         pwd            sleep          usleep
+/ # ls /usr/share/nginx/html/
+simple-website
+/ # exit
+PS C:\Users\Samu\.kube> kubectl exec -it multitool-6d598c8f8-lt9st bash
+bash-5.0# exit
+exit
+
+```
+
+
+```
+PS C:\Users\Samu\.kube> kubectl get pod -o wide
+NAME                        READY   STATUS    RESTARTS   AGE     IP           NODE       NOMINATED NODE   READINESS GATES
+init-container-demo         1/1     Running   0          10m     172.17.0.5   minikube   <none>           <none>
+multitool-6d598c8f8-lt9st   1/1     Running   0          4h19m   172.17.0.7   minikube   <none>           <none>
+PS C:\Users\Samu\.kube> kubectl exec -it multitool-6d598c8f8-lt9st bash
+bash-5.0# curl 172.17.0.5
+<html>
+<head><title>403 Forbidden</title></head>
+<body>
+<center><h1>403 Forbidden</h1></center>
+<hr><center>nginx/1.17.6</center>
+</body>
+</html>
+bash-5.0# exit
+exit
+
+```
+
+
+```
+S C:\Users\Samu\.kube> kubectl describe pod  init-container-demo
+Name:               init-container-demo
+Namespace:          default
+Priority:           0
+PriorityClassName:  <none>
+Node:               minikube/172.18.57.156
+Start Time:         Tue, 31 Dec 2019 19:13:10 +0530
+Labels:             <none>
+Annotations:        <none>
+Status:             Running
+IP:                 172.17.0.5
+Init Containers:
+  helper:
+    Container ID:  docker://e18d67d7d81f548df17f5bcb3e4614053a78b16e502cd1934118a3bba2c4e737
+    Image:         alpine/git
+    Image ID:      docker-pullable://alpine/git@sha256:8f5659025d83a60e9d140123bb1b27f3c334578aef10d002da4e5848580f1a6c
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      git
+      clone
+      https://github.com/fly2nadeem/simple-website.git
+      /web-content/
+    State:          Terminated
+      Reason:       Completed
+      Exit Code:    0
+      Started:      Tue, 31 Dec 2019 19:14:09 +0530
+      Finished:     Tue, 31 Dec 2019 19:18:29 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2crx5 (ro)
+      /web-content from web-content-dir (rw)
+Containers:
+  nginx:
+    Container ID:   docker://32ac3b1c217ecaac775c12b18ebd2b161359657058589f0ad4c5f2442c405819
+    Image:          nginx:alpine
+    Image ID:       docker-pullable://nginx@sha256:0e61b143db3110f3b8ae29a67f107d5536b71a7c1f10afb14d4228711fc65a13
+    Port:           80/TCP
+    Host Port:      0/TCP
+    State:          Running
+      Started:      Tue, 31 Dec 2019 19:18:32 +0530
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /usr/share/nginx/html from web-content-dir (rw)
+      /var/run/secrets/kubernetes.io/serviceaccount from default-token-2crx5 (ro)
+Conditions:
+  Type              Status
+  Initialized       True
+  Ready             True
+  ContainersReady   True
+  PodScheduled      True
+Volumes:
+  web-content-dir:
+    Type:       EmptyDir (a temporary directory that shares a pod's lifetime)
+    Medium:
+    SizeLimit:  <unset>
+  default-token-2crx5:
+    Type:        Secret (a volume populated by a Secret)
+    SecretName:  default-token-2crx5
+    Optional:    false
+QoS Class:       BestEffort
+Node-Selectors:  <none>
+Tolerations:     node.kubernetes.io/not-ready:NoExecute for 300s
+                 node.kubernetes.io/unreachable:NoExecute for 300s
+Events:
+  Type    Reason     Age    From               Message
+  ----    ------     ----   ----               -------
+  Normal  Scheduled  11m    default-scheduler  Successfully assigned default/init-container-demo to minikube
+  Normal  Pulling    11m    kubelet, minikube  Pulling image "alpine/git"
+  Normal  Pulled     10m    kubelet, minikube  Successfully pulled image "alpine/git"
+  Normal  Created    10m    kubelet, minikube  Created container helper
+  Normal  Started    10m    kubelet, minikube  Started container helper
+  Normal  Pulled     6m35s  kubelet, minikube  Container image "nginx:alpine" already present on machine
+  Normal  Created    6m33s  kubelet, minikube  Created container nginx
+  Normal  Started    6m32s  kubelet, minikube  Started container nginx
+PS C:\Users\Samu\.kube> kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+init-container-demo         1/1     Running   0          28m
+multitool-6d598c8f8-lt9st   1/1     Running   0          4h37m
+
+```
+
+We can now delete the init-container as our task is completed.
+
+```
+PS C:\Users\Samu\.kube> kubectl delete pod init-container-demo
+pod "init-container-demo" deleted
+PS C:\Users\Samu\.kube> kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+multitool-6d598c8f8-lt9st   1/1     Running   0          4h39m
+
+```
+
+# Multi-container pods and side-cars:
+There are instances when you may have two containers in the same pod. A very primitiv example would be a pod in which one container generates the web content on continuous basis, and another container serves the web content. This is different from init container example. In the init-container example, the "puller" pulls the static content only once, saves it in a shared storage, and exists, and the main web-server container serves that static content. In this example there is no puller, instead there is a "content-generator", which will run as a **side-car** , and will constantly add content in the the shared storage volume, which the web server will use to serve the content.
+
+Here is the code for such a multi-contianer pod:
+
+```
+$ cat multi-container-pod.yaml 
+apiVersion: v1
+kind: Pod
+metadata:
+  name: multi-container-demo
+spec:
+  containers:
+  - name: nginx
+    image: nginx:alpine
+    ports:
+    - containerPort: 80
+    volumeMounts:
+    - name: web-content-dir
+      mountPath: /usr/share/nginx/html
+  - name: content-generator
+    image: busybox
+    command: ['sh', '-c', 'while true; do echo Date and Time is $(date) >> /web-content/index.html && sleep 5; done']
+    volumeMounts:
+    - name: web-content-dir
+      mountPath: "/web-content"
+
+  volumes:
+  - name: web-content-dir
+    emptyDir: {}
+$ 
+```
+
+
+Lets create this pod:
+
+```
+$ kubectl create -f multi-container-pod.yaml 
+pod "multi-container-demo" created
+$
+
+$ kubectl get pods -o wide
+NAME                         READY     STATUS    RESTARTS   AGE       IP            NODE
+multi-container-demo         2/2       Running   0          21s       10.200.0.22   kubeadm-node1
+multitool-5558fd48d4-snr8j   1/1       Running   0          23h       10.200.1.28   kubeadm-node2
+$
+```
+
+Lets login into the multitool and try to access the web page of the nginx container from the multicontainer-pod.
+
+```
+$ kubectl exec -it multitool-5558fd48d4-snr8j bash
+
+bash-4.4# curl 10.200.0.22
+
+Date and Time is Sat Dec 31 16:21:28 UTC 2019
+Date and Time is Sat Dec 31 16:21:33 UTC 2019
+Date and Time is Sat Dec 31 16:21:38 UTC 2019
+Date and Time is Sat Dec 31 16:21:43 UTC 2019
+Date and Time is Sat Dec 31 16:21:48 UTC 2019
+bash-4.4#
+```
+
+Notice that the web page has entries with time difference of 5 seconds. If you "watch" this, you will see it in action.
+
+```
+bash-4.4# watch curl -s 10.200.0.22
+Date and Time is Sat Dec 31 16:21:28 UTC 2019
+Date and Time is Sat Dec 31 16:21:33 UTC 2019
+Date and Time is Sat Dec 31 16:21:38 UTC 2019
+Date and Time is Sat Dec 31 16:21:43 UTC 2019
+Date and Time is Sat Dec 31 16:21:48 UTC 2019
+Date and Time is Sat Dec 31 16:21:53 UTC 2019
+Date and Time is Sat Dec 31 16:21:58 UTC 2019
+Date and Time is Sat Dec 31 16:22:03 UTC 2019
+```
+
+Lets exec into the content-generator container in this multi-container pod. If you try to exec into any of the container in a multi-container pod, without specifying the name of the container, you will see the following message:
+
+```
+$ kubectl exec -it multi-container-demo /bin/sh
+Defaulting container name to nginx.
+Use 'kubectl describe pod/multi-container-demo -n default' to see all of the containers in this pod.
+/ #
+```
+
+You can see that if you do not specify the container name while doing exec (or even log - later), you will be sent to the first container kubernetes sees in the pod, which may not be the correct one. In our case it defaulted to the nginx container. You need to use `kubectl describe pod <pod-name>` command to get the list of containers of a pod. In our case the name of the container is "content-generator".
+
+So, now we will specify the exact container in the pod to exec into:
+
+```shell
+$ kubectl exec -it multi-container-demo -c content-generator /bin/sh
+/ # ls
+bin          etc          proc         sys          usr          web-content
+dev          home         root         tmp          var
+
+/ # ps
+PID   USER     TIME  COMMAND
+    1 root      0:00 sh -c while true; do echo Date and Time is $(date) >> /web-content/index.html && sleep 5; done
+   74 root      0:00 /bin/sh
+   84 root      0:00 sleep 5
+   86 root      0:00 ps
+/ # exit
+$
+``` 
+I checked the processes running in that container and see that the command I specified in the container's specification, is running. 
+
+Similarly, if I want to check logs of a container in a multi-container pod, I have to do the same:
+
+```
+$ kubectl logs -f multi-container-demo -c nginx 
+10.200.1.28 - - [31/Dec/2019:16:22:05 +0000] "GET / HTTP/1.1" 200 360 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:21 +0000] "GET / HTTP/1.1" 200 495 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:28 +0000] "GET / HTTP/1.1" 200 540 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:35 +0000] "GET / HTTP/1.1" 200 630 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:37 +0000] "GET / HTTP/1.1" 200 630 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:39 +0000] "GET / HTTP/1.1" 200 675 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:41 +0000] "GET / HTTP/1.1" 200 675 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:43 +0000] "GET / HTTP/1.1" 200 675 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:45 +0000] "GET / HTTP/1.1" 200 720 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:47 +0000] "GET / HTTP/1.1" 200 720 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:49 +0000] "GET / HTTP/1.1" 200 765 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:51 +0000] "GET / HTTP/1.1" 200 765 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:53 +0000] "GET / HTTP/1.1" 200 765 "-" "curl/7.61.1" "-"
+10.200.1.28 - - [31/Dec/2019:16:22:55 +0000] "GET / HTTP/1.1" 200 810 "-" "curl/7.61.1" "-"
+```
+
+
+
+
+
+
+==============================================================================================================================================================
