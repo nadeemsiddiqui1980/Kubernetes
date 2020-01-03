@@ -119,6 +119,106 @@ This is test repo
 
 ==============================================================================================================================================================
 
+# Config File
+
+Config file contains all the configuration details of our kubernetes cluster and it is stored inside the Kube Folder.
+
+```
+PS C:\Users\Samu\.kube> cat .\config
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUN5RENDQWJDZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRFNU1USXpNREUyTXpBMU1sb1hEVEk1TVRJeU56RTJNekExTWxvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTUJJClpxMXJnT2w0REtiOUZ5dFRnc09OMUxSZXo3Wm92V3RDcGplUzNIUFdkTGtlRHVINzFxRVU5ZG9lUlA4YnBmTHoKckh6UVFRd296cmNjTmJTVjBIeHdYcHFPNUljM3ZUU1FZSjdrNnppdWNBZVkvQ2k3NHkzZ0w0UVdLQUFEN2RHKwp3Z1d0TFg2eUo3eDJiK1BJaUxLODdtSmhrQmFFZFdyNU5FQUtqNXROYmZyRWc0MEZudEs1U1lwWmRQT0JaT2pqCnBvSzdKRk0rcWVpY3B2YUVWTjFwamlQakhFMC8zZ2xmMG8wanJ3U1JtaVJ2dDgwL3BIdFV3VEYvd1RkVXlucWoKT3cvcmw2OXBBZXVSRWl3RWRDUFk2NENxTmVoSGFGMVlMVEc5S0xlWU43clJmdnpWU0JkaFc4Nks3MEcwZ09DZApJZ2xpZ3lGRHlONmNMcitBZ3dNQ0F3RUFBYU1qTUNFd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0RRWUpLb1pJaHZjTkFRRUxCUUFEZ2dFQkFIRDZzeGNtVnJabXZrdUFLL1VudFY1MmNNT0cKYWY3RUhtRjAvSktDb29UVlh6VmFrb1hRK0VwYmxXcWlZWHdQRUhQdWtqdkFDZm5VZFBvcWJsaitCWTVOZmttRApxYkhZT0VXVm1pOGZjQ1RBb216YlhpYTdab1RLbzltQWlVK2Z4OEFneFZQMEYwUlkxbkg1ZklRUkViL0txQnd6CjRvYTRGR2c2d1ZCU0swSFZvV2l3cFpDM05OQlFZcDhranFYbUFoTmtOMW5kRFVwb3dEZUtLMDMzT2d0eXBPUCsKOU9FUHIxMzBGVHVPbXJzL2dJOVN4NEtvTHNvS0c2KzdxYTRYQ3huUklqdjk5dGoxVDBsdGljQjBELzJOQVEySQo5TDB3RnAzTmZad3JmSjk1Z1BsZk1taG5vUkluQnJaQ1cwb2JLRHlOS2RxbHRUVE1tblVHR00rZnpzaz0KLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+    server: https://kubernetes.docker.internal:6443
+  name: docker-desktop
+- cluster:
+    certificate-authority: C:\Users\Samu\.minikube\ca.crt
+    server: https://172.18.57.156:8443
+  name: minikube
+contexts:
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-desktop
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-for-desktop
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: docker-desktop
+  user:
+    client-certificate-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUM5RENDQWR5Z0F3SUJBZ0lJY21XZm9aaFdoUW93RFFZSktvWklodmNOQVFFTEJRQXdGVEVUTUJFR0ExVUUKQXhNS2EzVmlaWEp1WlhSbGN6QWVGdzB4T1RFeU16QXhOak13TlRKYUZ3MHlNREV5TWpreE5qTTBOREZhTURZeApGekFWQmdOVkJBb1REbk41YzNSbGJUcHRZWE4wWlhKek1Sc3dHUVlEVlFRREV4SmtiMk5yWlhJdFptOXlMV1JsCmMydDBiM0F3Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRFk1R1FpRm9QRnRzNVkKbHZqZE9yZndGNFBLR0FTWS9wbkZLRDZBd2UyU09wT3BOMmxjTDdmTVFrUzA3U1ROcXFwTVJNU1Jsckw3ZnhTZQpBYUMxVnhPM0J2ajJQQUcvcUpIMmtDT21ycGpZOW1NbUliTEdWOEI1RzU4b3hhSmtFaGJJai9TVnF2VWpvNzRUClIxSGoyMnVQTzE2U2NPL0VKNkJNc3hhZy9md0tkQ1hpcmVUWTJHL0ZqdkltRVovOFhuVk9uYmZhQVBXTm5CR04KUmxiMzczcE4zUTJ5cCt1MUNsNzh2QkhBSnYyQWljdjViZm5LMFYvSFBTUjFTVkhwWksrRkJpcGg1NWtlcTg2cwpiVTgwck1DVnJublQ5M2NkUEpobCs2WGlxZC9WWU0zb29HN09zbm9jZWxZTUtSRWlldzZTVnI2RnA0Znd3M1JhCkZJcS9EUEVoQWdNQkFBR2pKekFsTUE0R0ExVWREd0VCL3dRRUF3SUZvREFUQmdOVkhTVUVEREFLQmdnckJnRUYKQlFjREFqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFMeGw0dHgyY0ltVUFWcG00UHhzUVQ4YzkvUm1FQTNtMQpOcWRsMDFzTVppZkczMjFGalRmWk8wTmw5RVVwWUl5TEltaEpRaWtieVpWZmR5ZFRlMkZyRk9PUkpxNVdoSzdKCjN3SGw5Um9SZWdjRTk1RllPWWFESzc4V3FMWXFtQWI0Rjg4L0dKZUFCUkVOaElFUnlualRuMmtIbm5Tbmsxd2UKSE5HUGZCcFJOZXNuNk81WnlYUHBCVkxKbGlnSmVvdGhFckVLUlVPbzFkMlBFVjkrczdDdzRDbHgvNmVxVlF3eApCbkZSWlBhMDB6WXB3VnF4eDROeVRMemNRZkN4NHgybDN2VWp4OFIzalQvRTNLRitnWmJCUG1BajJLNHhTM3JsCkd4MnpER0FjNmI2aGpUZzZ2czd4OTl0WkxiOVRzd2tZMS95N3ZTUUlSSCtHQnRmcDdGWm1iQT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K
+    client-key-data: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFb2dJQkFBS0NBUUVBMk9Sa0loYUR4YmJPV0piNDNUcTM4QmVEeWhnRW1QNlp4U2crZ01IdGtqcVRxVGRwClhDKzN6RUpFdE8wa3phcXFURVRFa1pheSszOFVuZ0dndFZjVHR3YjQ5andCdjZpUjlwQWpwcTZZMlBaakppR3kKeGxmQWVSdWZLTVdpWkJJV3lJLzBsYXIxSTZPK0UwZFI0OXRyanp0ZWtuRHZ4Q2VnVExNV29QMzhDblFsNHEzawoyTmh2eFk3eUpoR2YvRjUxVHAyMzJnRDFqWndSalVaVzkrOTZUZDBOc3FmcnRRcGUvTHdSd0NiOWdJbkwrVzM1Cnl0RmZ4ejBrZFVsUjZXU3ZoUVlxWWVlWkhxdk9yRzFQTkt6QWxhNTUwL2QzSFR5WVpmdWw0cW5mMVdETjZLQnUKenJKNkhIcFdEQ2tSSW5zT2tsYStoYWVIOE1OMFdoU0t2d3p4SVFJREFRQUJBb0lCQUVscXhocGoxS2NRZ2ppcQpvZ01BNVZKNEl6dzlkUkQwM2NoSEh5RW1nK3lEdDRnSUlibjZ6UlJ2T2lLa1ExajY5RHBzN0x6N2JncURzYzdxCmJpUDBIZEJPbytkMTJJR3Y1Zmk0UWRraU1Nc0FXLytFV0tlYS9LUUNIWllIa0RpZmh1Yk5FOVcxME5VSGtFZW0KVktuMGxDd2Z4SnQ5Ynl2TzNnd1ljd2g3OE56NFpIUHVYS3VQUkxHVGtLK2ZCbnN1d2labTkrWllJTWMvNVlSbApZRUlBNVlJTk9EZlBBa2RWRFFKV08wZmUwbjJ2L284RUVjSk9XOFZ2cURYYUFYVmp1b2FVSWwrQXRYL2k4dWZHCnlYRDZIR3o0Y0gzcmxkL0IvREtRQm9BUW5TZjhOQ0ZDaGlTNElBTkIwN3JxSlNwQzFQL2dneHhJQncyeHNtc0MKZnJENkxLRUNnWUVBNjUyeHR3SHQzZWduczhwLzI5N2hSRGwwNXMvRHpDUWQyUlRTU29wUElCSVF2WnM1WXJMagplZTNXM01qRnMrSWR0Y1AwWEtWMmUxR2h1Yi9SSkRlWVk3WDBtUzlpblFhOVIyWnhxRGFOSHdwZkZIMG41cW9FCnBjbmd5aEFySGFrNjlkZWtMS3FnTmREVjJ3NjhkeGg3QlhxOFMxSndtRmFBaHJaU2dtVGtraThDZ1lFQTY2Z0MKdWd5eFZFZEtPcmh5QjhKbStVTTJyeGtDZFFkQ0VPaVdWbUg3RzRQZUdxeFoxT25oUEgyN21UOFdZOGtMZU9pNgpVZ1JsV0x5K3pWV0dUNnpBd2R1anNtUGYzR3ZZSjdFbFJpY3FGOUN0ZjN2MzNTRGZMd2F2TStTeE1sVTJ5SDVtCkVBVkJ3YUFYekZ4Q21JTFljSFUrU0Fnb1owWW1maWdXSFl1aGJhOENnWUFQN2g2STRCR0VFbUUwejdrclZYdG4Ka0hidDhCZ3Q0amMrYVNENnR6VTRWdUJZNFhqVXlvR0V5ZWJnRUpjRlhZRml1N2YyMTUwV0kyUEsya1E2cmFPWgpBa0ZpWmdqRjB5SFRCUU1rTzJQNU9FdExhRmJkU3B0NzFoVmp0QW9tUEQzblIwZ3JXUEh5RVllVUF3QU5FVk9vCkFDOWc3RmIraGNLMDJQamxKZ3NxTXdLQmdHNXh1STF2dzNCSFZSKytNQnM0M2ovMlkxdWU4Z3JkRXZhUHUxM1MKMy9nZVRtcmIyZUl5bHRCZDhSMDZkd2pmUVpReUpwaW4zTVBBK2YrTUZMMmtybFpzMVFTWFVHU2kycFNIcm50NQpnWDNWM0dxQ05FR2IxVjNaMlNVT0Nvb1hhK3g5YU9JYlJKMDFwZEd1Yjd2QW55WGRuUW52WU5nK0JXNWM1VGlGCnAydWJBb0dBSURTRlpydVNnSVhhS3A0Nm80SVBtU0V3Z3NGaFBGT0NHR3dnK0tlV3dhY0wreFd5c3ZVZzM3Vm8KbllCUTBSUzVVZGo3Qm5LNHhBN0d5bURzd1ROaGVQMzMrUk1HMHc4T2p2MVRsUldRYjlUY2NIM0U3MmpOR3ZJMQpNYUlyMU44YmZRUXhRODVackJMT3dTZkNweVk3U0VzUHlacmFiZElyaTRnWmVzRENZSnM9Ci0tLS0tRU5EIFJTQSBQUklWQVRFIEtFWS0tLS0tCg==
+- name: minikube
+  user:
+    client-certificate: C:\Users\Samu\.minikube\client.crt
+    client-key: C:\Users\Samu\.minikube\client.key
+PS C:\Users\Samu\.kube> kubectl config view
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority-data: DATA+OMITTED
+    server: https://kubernetes.docker.internal:6443
+  name: docker-desktop
+- cluster:
+    certificate-authority: C:\Users\Samu\.minikube\ca.crt
+    server: https://172.18.57.156:8443
+  name: minikube
+contexts:
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-desktop
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-for-desktop
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: docker-desktop
+  user:
+    client-certificate-data: REDACTED
+    client-key-data: REDACTED
+- name: minikube
+  user:
+    client-certificate: C:\Users\Samu\.minikube\client.crt
+    client-key: C:\Users\Samu\.minikube\client.key
+PS C:\Users\Samu\.kube> kubectl config view --minify=true
+apiVersion: v1
+clusters:
+- cluster:
+    certificate-authority: C:\Users\Samu\.minikube\ca.crt
+    server: https://172.18.57.156:8443
+  name: minikube
+contexts:
+- context:
+    cluster: minikube
+    user: minikube
+  name: minikube
+current-context: minikube
+kind: Config
+preferences: {}
+users:
+- name: minikube
+  user:
+    client-certificate: C:\Users\Samu\.minikube\client.crt
+    client-key: C:\Users\Samu\.minikube\client.key
+
+```
+
 
 # Setup Namespace
 
